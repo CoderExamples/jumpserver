@@ -49,11 +49,8 @@ def validate_permission(user, application, system_user):
         id__in=app_perm_ids
     ).order_by('-date_expired')
 
-    app_perm = app_perms.first()
-
-    app_perm: ApplicationPermission
-    if app_perm:
-        has_perm = True
+    if app_perms:
+        app_perm: ApplicationPermission = app_perms.first()
         actions = set()
         actions_values = app_perms.values_list('actions', flat=True)
         for value in actions_values:
@@ -61,6 +58,8 @@ def validate_permission(user, application, system_user):
             actions.update(_actions)
         actions = list(actions)
         expire_at = app_perm.date_expired.timestamp()
+        # TODO: 组件改造API完成后统一通过actions判断
+        has_perm = 'connect' in actions
     else:
         has_perm = False
         actions = []
